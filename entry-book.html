@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3M Car Care Studio – Voice Entry Book</title>
+<style>
+:root{--bg:#f3f5fb;--card:#fff;--ink:#14213d;--mute:#6b7692;--line:#e3e8f2;--accent:#ff7a1a;--accent2:#12b3a6;--danger:#e5484d;--chip:#eaeefa;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1424;--card:#172038;--ink:#eef1f8;--mute:#98a3bf;--line:#273250;--chip:#222d4a}}
+:root[data-theme="dark"]{--bg:#0e1424;--card:#172038;--ink:#eef1f8;--mute:#98a3bf;--line:#273250;--chip:#222d4a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:linear-gradient(135deg,#14213d,#274690 60%,#12b3a6);color:#fff;padding:18px 16px 56px}
+.wrap{max-width:980px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{background:var(--accent);width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:18px}
+.brand h1{font-size:19px;margin:0}.brand p{margin:0;opacity:.8;font-size:13px}
+main{max-width:980px;margin:-40px auto 40px;padding:0 14px}
+.tabs{display:flex;gap:6px;background:var(--card);padding:5px;border-radius:14px;box-shadow:0 4px 18px #0002;margin-bottom:14px}
+.tabs button{flex:1;border:0;background:none;color:var(--mute);padding:11px;border-radius:10px;font:600 15px inherit;cursor:pointer}
+.tabs button.on{background:var(--accent);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
+.mic-row{display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 0 14px}
+#mic{width:96px;height:96px;border-radius:50%;border:0;background:linear-gradient(135deg,#ff7a1a,#ff4d6d);color:#fff;font-size:38px;cursor:pointer;box-shadow:0 8px 24px #ff7a1a66}
+#mic.live{animation:pulse 1.2s infinite;background:linear-gradient(135deg,#e5484d,#b3123a)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #e5484d88}100%{box-shadow:0 0 0 28px #e5484d00}}
+.mute{color:var(--mute);font-size:13px}
+textarea,input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+textarea{min-height:84px;resize:vertical}
+.btn{background:var(--accent2);color:#fff;border:0;border-radius:10px;padding:11px 18px;font:600 15px inherit;cursor:pointer}
+.btn.alt{background:var(--chip);color:var(--ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:0;background:var(--chip);color:var(--ink);padding:8px 13px;border-radius:99px;cursor:pointer;font:500 14px inherit}
+.chip.on{background:var(--accent);color:#fff}.chip small{opacity:.7;margin-left:4px}
+.bk{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0;background:var(--bg)}
+.bh{display:flex;gap:8px;align-items:center;font-weight:700;margin-bottom:8px}
+.bh input{width:auto}.bh em{font-size:11px;background:var(--accent);color:#fff;border-radius:6px;padding:1px 7px;font-style:normal}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.fields label{font-size:12px;color:var(--mute)}
+.tbl{overflow-x:auto;margin-top:12px;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top}
+th{background:var(--chip);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
+.del{border:0;background:none;color:var(--danger);cursor:pointer;font-size:16px}
+.tools{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-top:12px}
+.recent{list-style:none;margin:8px 0 0;padding:0}.recent li{padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#14213d;color:#fff;padding:11px 18px;border-radius:12px;display:none;z-index:9;max-width:90%;box-shadow:0 6px 20px #0005}
+#toast button{background:none;border:0;color:#ffb27a;font-weight:700;margin-left:10px;cursor:pointer}
+.hide{display:none}
+@media(max-width:560px){.tools{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap brand"><div class="logo">3M</div><div><h1>Car Care Studio – Entry Book</h1><p>Speak once, it’s recorded everywhere it belongs</p></div></div></header>
+<main>
+<div class="tabs"><button id="tabSpeak" class="on">🎙️ Speak</button><button id="tabBooks">📚 Books</button></div>
+
+<section id="viewSpeak">
+  <div class="card">
+    <div class="mic-row"><button id="mic" aria-label="Start speaking">🎙️</button><span id="micHint" class="mute">Tap the mic and speak your entry</span></div>
+    <textarea id="txt" placeholder="Your spoken entry appears here — you can also type or fix it"></textarea>
+    <div class="row"><button class="btn" id="understand">Understand entry</button><button class="btn alt" id="clear">Clear</button></div>
+    <p class="mute" style="margin:14px 0 6px">Try an example:</p>
+    <div class="chips" id="examples"></div>
+  </div>
+  <div id="preview"></div>
+  <div class="card"><b>Latest entries</b><ul class="recent" id="recent"></ul></div>
+</section>
+
+<section id="viewBooks" class="hide">
+  <div class="card">
+    <div class="chips" id="bookChips"></div>
+    <div class="tools">
+      <input id="q" placeholder="🔍 Search this book">
+      <input id="from" type="date" aria-label="From date"><input id="to" type="date" aria-label="To date">
+    </div>
+    <div class="row"><button class="btn alt" id="sort">Newest first ↓</button><button class="btn alt" id="copy">Copy for Excel / Sheets</button></div>
+    <div class="tbl" id="tbl"></div>
+  </div>
+  <div class="card">
+    <b>➕ Add a new book</b>
+    <div class="tools" style="grid-template-columns:1fr 1fr auto">
+      <input id="nbName" placeholder="Book name (e.g. Booster Coat)">
+      <input id="nbKeys" placeholder="Words that send entries here (comma separated)">
+      <button class="btn" id="nbAdd">Add</button>
+    </div>
+    <p class="mute">Any entry containing the book name or one of these words will also be filed in this book.</p>
+  </div>
+</section>
+</main>
+<div id="toast"></div>
+
+<script>
+// ---------- Data ----------
+const KEY = '3m-entry-book-v1';
+const DEFAULTS = [
+  {id:'daily', name:'Daily Entry', icon:'📒', cols:['Entry','Sent to books']},
+  {id:'attendance', name:'Attendance', icon:'🕘', cols:['Employee','Action','Punch time']},
+  {id:'vehicles', name:'Vehicles', icon:'🚗', cols:['Vehicle','Treatment','Status']},
+  {id:'supply', name:'Material Supply', icon:'📤', cols:['Material','Sent to']},
+  {id:'received', name:'Material Received', icon:'📥', cols:['Material','Supplier']},
+  {id:'petty', name:'Petty Cash', icon:'💰', cols:['Type','Amount','Reason']},
+  {id:'bill', name:'Bill Tracker', icon:'🧾', cols:['Customer','Mobile','Vehicle','Treatment','Amount','Payment mode']},
+  {id:'advance', name:'Advance Payment', icon:'💳', cols:['Name','Amount','Note']}
+];
+const BUILT_IN = DEFAULTS.map(b => b.id);
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const tidy = s => (s || '').replace(/\s+/g, ' ').trim();
+const up = s => s ? s[0].toUpperCase() + s.slice(1) : '';
+const cap = s => tidy(s).replace(/\b\w/g, c => c.toUpperCase());
+
+function load() {
+  try { const d = JSON.parse(localStorage.getItem(KEY)); if (d && d.books) return d; } catch (e) {}
+  return {books: JSON.parse(JSON.stringify(DEFAULTS)), rows: {}};
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} }
+let db = load();
+
+function addRow(bookId, v) {
+  const now = new Date();
+  (db.rows[bookId] = db.rows[bookId] || []).push({
+    id: Date.now() + '' + Math.random(),
+    date: now.toLocaleDateString('en-CA'),
+    time: now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}),
+    v: v
+  });
+}
+
+// ---------- Understanding the spoken text ----------
+function labelParse(text) {
+  const map = {'customer name':'Customer','customer':'Customer','name':'Customer','mobile number':'Mobile','mobile':'Mobile',
+    'phone':'Mobile','vehicle':'Vehicle','treatment':'Treatment','amount':'Amount','payment mode':'Payment mode','payment':'Payment mode'};
+  const parts = text.split(new RegExp('\\b(' + Object.keys(map).join('|') + ')\\b', 'i'));
+  const out = {};
+  for (let i = 1; i < parts.length; i += 2) {
+    const key = map[parts[i].toLowerCase()];
+    const val = (parts[i + 1] || '').replace(/^[\s:,-]+/, '').replace(/^(is|as)\s+/i, '').replace(/[\s,.]+$/, '');
+    if (val && !out[key]) out[key] = val;
+  }
+  return out;
+}
+
+function parse(text) {
+  const t = text.toLowerCase(), out = [];
+  const add = (id, v) => { const b = db.books.find(x => x.id === id); if (b) out.push({id:b.id, name:b.name, icon:b.icon, cols:b.cols, v:v}); };
+  const tm = t.match(/(\d{1,2})(?:[:.](\d{2}))?\s*([ap])\.?\s?m\b/);
+  const time = tm ? (+tm[1]) + ':' + (tm[2] || '00') + ' ' + tm[3].toUpperCase() + 'M' : '';
+  const noPhone = t.replace(/\b\d{10}\b/g, ' ').replace(tm ? tm[0] : '', ' ');
+  const amt = ((noPhone.match(/\d[\d,]*/) || [''])[0]).replace(/,/g, '');
+  const isBill = /bill\s*tracker|billing/.test(t);
+  const matIn = /\b(got|received|receive|inward)\b/.test(t) && /material|stock|goods|roll|role|film/.test(t);
+  const matOut = !matIn && /outward|dispatch|transfer|\b(sent|send)\b/.test(t) && /material|stock|goods|roll|role|film|outward/.test(t);
+  let used = false;
+
+  if (isBill) {
+    const f = labelParse(text);
+    const pm = t.match(/\b(cash|upi|gpay|google pay|phonepe|card|cheque|online|bank transfer)\b/);
+    add('bill', {
+      'Customer': cap(f.Customer || ''),
+      'Mobile': (f.Mobile || (text.match(/\b\d{10}\b/) || [''])[0]).replace(/\D/g, ''),
+      'Vehicle': cap(f.Vehicle || ''),
+      'Treatment': up(f.Treatment || ''),
+      'Amount': (f.Amount || '').replace(/[^\d.]/g, '') || amt,
+      'Payment mode': f['Payment mode'] ? cap(f['Payment mode']) : (pm ? cap(pm[1]) : '')
+    });
+    used = true;
+  }
+  if (matOut) {
+    const to = (text.match(/\bto\s+(?:the\s+)?(.+)$/i) || [])[1] || '';
+    const mat = text.split(/\bto\b/i)[0].replace(/\b(outward|material|sent|send|dispatch\w*|transfer\w*|from|our|store|is|this|the|we|i)\b/gi, ' ');
+    add('supply', {'Material': up(tidy(mat)), 'Sent to': cap(to)});
+    used = true;
+  }
+  if (matIn) {
+    const sup = tidy((text.match(/\bfrom\s+(.+?)\s*$/i) || [])[1] || '');
+    const mat = up(tidy(text.split(/\bfrom\b/i)[0].replace(/^\s*(i|we)?\s*(got|received|receive|inward)\s*(some|the|new)?\s*(material)?\s*/i, '').replace(/[()]/g, '')));
+    add('received', {'Material': mat, 'Supplier': cap(sup)});
+    if (sup) {
+      const slug = 'sup-' + sup.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const ex = db.books.find(b => b.id === slug || b.name.toLowerCase() === sup.toLowerCase());
+      const cols = ex ? ex.cols : ['Material', 'Note'];
+      out.push({id: ex ? ex.id : slug, name: ex ? ex.name : cap(sup), icon: ex ? ex.icon : '👤', cols: cols, isNew: !ex,
+        v: cols.includes('Material') ? {'Material': mat, 'Note': 'Received'} : {'Entry': 'Received ' + mat}});
+    }
+    used = true;
+  }
+  const att = !used && t.match(/\bpunch(?:ed)?\s*(in|out)\b|\b(came|arrived|reached|left|absent|leave)\b/);
+  if (att) {
+    const w = att[0];
+    const action = /absent|leave/.test(w) ? 'Absent / Leave' : /out|left/.test(w) ? 'Punch out' : 'Punch in';
+    const emp = text.slice(0, att.index).replace(/\b(employee|the|staff|please|enter|entry)\b/gi, '');
+    add('attendance', {'Employee': cap(emp), 'Action': action, 'Punch time': time});
+    used = true;
+  }
+  const vm = !used && text.match(/^(.*?)\s+(in|out|delivered|ready)\s+for\s+(.+)$/i);
+  if (vm && !/\d|cash/i.test(vm[1])) {
+    add('vehicles', {
+      'Vehicle': cap(vm[1].replace(/\b(vehicle|car|the)\b/gi, '')),
+      'Treatment': up(tidy(vm[3])),
+      'Status': {in:'In', out:'Out', delivered:'Delivered', ready:'Ready'}[vm[2].toLowerCase()]
+    });
+    used = true;
+  }
+  if (!used && /petty|pety|\b\d[\d,]*\s*(?:rs|rupees?)?\s*(?:cash\s*)?(?:in|out)\b|cash\s*(?:in|out)/.test(t)) {
+    const type = /\bout\b|spent|paid|expense/.test(t) ? 'Out' : 'In';
+    const reason = (text.match(/\b(?:for|of)\s+(.+)$/i) || [])[1] || '';
+    add('petty', {'Type': type, 'Amount': amt, 'Reason': up(tidy(reason))});
+    used = true;
+  }
+  if (/advance/.test(t) && !isBill) {
+    const nm = (text.match(/\b(?:to|for|of|from)\s+([a-z ]+?)(?=\s*(?:\d|rs\b|rupees|$))/i) || [])[1] || '';
+    add('advance', {'Name': cap(nm), 'Amount': amt, 'Note': ''});
+  }
+  // user-made books: match by book name or keywords
+  db.books.forEach(b => {
+    if (BUILT_IN.includes(b.id) || b.id.indexOf('sup-') === 0 || out.some(o => o.id === b.id)) return;
+    const keys = [b.name.toLowerCase()].concat(b.keys || []);
+    if (keys.some(k => k && t.includes(k))) out.push({id:b.id, name:b.name, icon:b.icon, cols:b.cols, v:{'Entry': text}});
+  });
+  return out;
+}
+
+// ---------- Speak screen ----------
+let pending = [];
+function understand() {
+  const text = $('#txt').value.trim();
+  if (!text) { toast('Speak or type an entry first'); return; }
+  pending = parse(text);
+  let h = '<div class="card"><b>Check &amp; save</b><p class="mute" style="margin:2px 0">Daily Entry always gets a copy. Fix any field if the app heard it wrong.</p>';
+  pending.forEach((p, i) => {
+    h += '<div class="bk" data-i="' + i + '"><label class="bh"><input type="checkbox" checked><span>' + p.icon + ' ' + esc(p.name) + '</span>' +
+      (p.isNew ? '<em>new book</em>' : '') + '</label><div class="fields">' +
+      p.cols.map(c => '<label>' + esc(c) + '<input data-c="' + esc(c) + '" value="' + esc(p.v[c]) + '"></label>').join('') + '</div></div>';
+  });
+  if (!pending.length) h += '<p class="mute">No other book matched, so this will go to Daily Entry only. Try words like “bill tracker”, “petty cash”, “outward”, “punch in”.</p>';
+  h += '<button class="btn" id="saveBtn">✅ Save entry</button></div>';
+  $('#preview').innerHTML = h;
+  $('#saveBtn').onclick = saveEntry;
+}
+function saveEntry() {
+  const text = $('#txt').value.trim(), names = [];
+  $('#preview').querySelectorAll('.bk').forEach(el => {
+    if (!el.querySelector('input[type=checkbox]').checked) return;
+    const p = pending[el.dataset.i], v = {};
+    el.querySelectorAll('input[data-c]').forEach(i => v[i.dataset.c] = i.value.trim());
+    if (!db.books.find(b => b.id === p.id)) db.books.push({id:p.id, name:p.name, icon:p.icon, cols:p.cols, keys:[]});
+    addRow(p.id, v);
+    names.push(p.name);
+  });
+  addRow('daily', {'Entry': text, 'Sent to books': names.join(', ')});
+  save();
+  $('#txt').value = ''; $('#preview').innerHTML = '';
+  toast('Saved in ' + (names.length + 1) + ' book(s) ✔');
+  renderRecent(); renderBooks();
+}
+function renderRecent() {
+  const rows = (db.rows.daily || []).slice(-5).reverse();
+  $('#recent').innerHTML = rows.length ? rows.map(r => '<li><span class="mute">' + esc(r.date) + ' ' + esc(r.time) + '</span><br>' +
+    esc(r.v.Entry) + ' <span class="mute">→ ' + esc(r.v['Sent to books']) + '</span></li>').join('') : '<li class="mute">Nothing yet — your first entry will show here.</li>';
+}
+
+// ---------- Voice ----------
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false;
+function toggleMic() {
+  if (!SR) { toast('Voice typing needs Chrome or Edge. You can still type the entry.'); return; }
+  if (listening) { rec.stop(); return; }
+  rec = new SR(); rec.lang = 'en-IN'; rec.interimResults = true; rec.continuous = false;
+  const base = $('#txt').value.trim();
+  rec.onstart = () => { listening = true; $('#mic').classList.add('live'); $('#micHint').textContent = 'Listening… tap to stop'; };
+  rec.onresult = e => {
+    let s = ''; for (const r of e.results) s += r[0].transcript;
+    $('#txt').value = (base ? base + ' ' : '') + s;
+  };
+  rec.onerror = e => toast(e.error === 'not-allowed' ? 'Microphone is blocked — allow mic access, or open this page directly in Chrome' : 'Voice error: ' + e.error);
+  rec.onend = () => {
+    listening = false; $('#mic').classList.remove('live'); $('#micHint').textContent = 'Tap the mic and speak your entry';
+    if ($('#txt').value.trim()) understand();
+  };
+  try { rec.start(); } catch (e) {}
+}
+
+// ---------- Books screen ----------
+let sel = 'daily', newestFirst = true, lastShown = [];
+function renderBooks() {
+  if (!db.books.find(b => b.id === sel)) sel = 'daily';
+  $('#bookChips').innerHTML = db.books.map(b => '<button class="chip ' + (b.id === sel ? 'on' : '') + '" data-b="' + esc(b.id) + '">' +
+    b.icon + ' ' + esc(b.name) + '<small>' + (db.rows[b.id] || []).length + '</small></button>').join('');
+  const b = db.books.find(x => x.id === sel);
+  const q = $('#q').value.toLowerCase(), from = $('#from').value, to = $('#to').value;
+  let rows = (db.rows[b.id] || []).filter(r =>
+    (!from || r.date >= from) && (!to || r.date <= to) && (!q || JSON.stringify(r.v).toLowerCase().includes(q)));
+  if (newestFirst) rows = rows.slice().reverse();
+  lastShown = rows;
+  $('#sort').textContent = newestFirst ? 'Newest first ↓' : 'Oldest first ↑';
+  $('#tbl').innerHTML = rows.length
+    ? '<table><thead><tr><th>Date</th><th>Time</th>' + b.cols.map(c => '<th>' + esc(c) + '</th>').join('') + '<th></th></tr></thead><tbody>' +
+      rows.map(r => '<tr><td>' + esc(r.date) + '</td><td>' + esc(r.time) + '</td>' + b.cols.map(c => '<td>' + esc(r.v[c]) + '</td>').join('') +
+        '<td><button class="del" data-d="' + esc(r.id) + '" title="Delete">🗑</button></td></tr>').join('') + '</tbody></table>'
+    : '<p class="mute" style="padding:14px">No entries to show.</p>';
+}
+function deleteRow(id) {
+  const list = db.rows[sel] || [], idx = list.findIndex(r => r.id === id);
+  if (idx < 0) return;
+  const removed = list.splice(idx, 1)[0];
+  save(); renderBooks();
+  toast('Entry deleted', () => { list.splice(idx, 0, removed); save(); renderBooks(); });
+}
+function copyTable() {
+  const b = db.books.find(x => x.id === sel);
+  const text = ['Date', 'Time'].concat(b.cols).join('\t') + '\n' +
+    lastShown.map(r => [r.date, r.time].concat(b.cols.map(c => r.v[c] || '')).join('\t')).join('\n');
+  const done = () => toast('Copied — paste into Excel or Google Sheets');
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+  function fallback() {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { toast('Copy not allowed in this browser'); }
+    ta.remove();
+  }
+}
+function addBook() {
+  const name = tidy($('#nbName').value);
+  if (!name) { toast('Give the book a name'); return; }
+  const id = 'b-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  if (db.books.find(b => b.id === id)) { toast('That book already exists'); return; }
+  db.books.push({id:id, name:name, icon:'📘', cols:['Entry'], keys:$('#nbKeys').value.toLowerCase().split(',').map(tidy).filter(Boolean)});
+  $('#nbName').value = ''; $('#nbKeys').value = '';
+  save(); sel = id; renderBooks(); toast('Book added ✔');
+}
+
+// ---------- Small helpers ----------
+let toastTimer;
+function toast(msg, undo) {
+  const el = $('#toast'); el.textContent = msg; el.style.display = 'block';
+  if (undo) { const b = document.createElement('button'); b.textContent = 'Undo'; b.onclick = () => { undo(); el.style.display = 'none'; }; el.appendChild(b); }
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.style.display = 'none', undo ? 5000 : 3000);
+}
+function showTab(name) {
+  $('#viewSpeak').classList.toggle('hide', name !== 'speak');
+  $('#viewBooks').classList.toggle('hide', name !== 'books');
+  $('#tabSpeak').classList.toggle('on', name === 'speak');
+  $('#tabBooks').classList.toggle('on', name === 'books');
+  if (name === 'books') renderBooks();
+}
+
+// ---------- Wire up ----------
+$('#mic').onclick = toggleMic;
+$('#understand').onclick = understand;
+$('#clear').onclick = () => { $('#txt').value = ''; $('#preview').innerHTML = ''; };
+$('#tabSpeak').onclick = () => showTab('speak');
+$('#tabBooks').onclick = () => showTab('books');
+$('#bookChips').onclick = e => { const b = e.target.closest('[data-b]'); if (b) { sel = b.dataset.b; renderBooks(); } };
+$('#tbl').onclick = e => { const d = e.target.closest('[data-d]'); if (d) deleteRow(d.dataset.d); };
+['#q', '#from', '#to'].forEach(s => $(s).oninput = renderBooks);
+$('#sort').onclick = () => { newestFirst = !newestFirst; renderBooks(); };
+$('#copy').onclick = copyTable;
+$('#nbAdd').onclick = addBook;
+['Dinesh punch in at 9:00 am', 'Fortuner in for graphene', 'Ppf 2 roll outward to Wakad store', '199 out for snacks',
+ '1000 cash in petty cash of 2 vehicle wash sale', 'I got material ppf 50 gloss roll from Hakkim',
+ 'Do entry in bill tracker customer name Rahul mobile 9876543210 vehicle Creta treatment ceramic amount 15000 payment UPI'
+].forEach(s => {
+  const b = document.createElement('button'); b.className = 'chip'; b.textContent = s.length > 38 ? s.slice(0, 36) + '…' : s;
+  b.onclick = () => { $('#txt').value = s; understand(); };
+  $('#examples').appendChild(b);
+});
+renderRecent(); renderBooks();
+</script>
+</body>
+</html>
